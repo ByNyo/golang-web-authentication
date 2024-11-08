@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             loginButton.outerHTML = "";
         }
         if (claims.User.uuid !== givenUUID) {
-            console.log(givenUUID)
             if (show_email === false) {
                 email.outerHTML = "";
                 settings.outerHTML = "";
@@ -65,12 +64,20 @@ function handleSettings() {
         body: cookie,
     }
     fetch(url, options).then(async r => {
-        let data = r.text();
-        let claims = JSON.parse(await data);
+        if (!r.ok) {
+            if (r.status === 404) {
+                loginButton.removeAttribute("hidden");
+            } else {
+                console.error("CODE " + r.status + ": " + r.statusText);
+            }
+            return;
+        }
+        let data = await r.text();
+        let claims = JSON.parse(data);
         if (claims["authorized"]) {
             loginButton.outerHTML = "";
         }
-        if (claims.User.username === username) {
+        if (claims.User.uuid === givenUUID) {
             window.location.href = "/settings";
         }
     });

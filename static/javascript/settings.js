@@ -50,12 +50,20 @@ function saveSettings() {
         body: cookie,
     }
     fetch(url, options).then(async r => {
+        if (!r.ok) {
+            if (r.status === 404) {
+                loginButton.removeAttribute("hidden");
+            } else {
+                console.error("CODE " + r.status + ": " + r.statusText);
+            }
+            return;
+        }
         let data = await r.text();
         let claims = JSON.parse(data);
         if (claims["authorized"]) {
-            if (claims.User.username === givenUsername) {
+            if (claims.User.uuid === givenUUID) {
                 let user = {
-                    "uuid": claims["uuid"],
+                    "uuid": claims.User.uuid,
                     "username": username.value,
                     "email": email.value,
                     "password": password.value,
@@ -67,8 +75,15 @@ function saveSettings() {
                     body: JSON.stringify(user)
                 }
                 fetch(url, options).then(async r => {
-                    console.log(r)
-                    console.log(await r.text())
+                    if (!r.ok) {
+                        if (r.status === 404) {
+                            loginButton.removeAttribute("hidden");
+                        } else {
+                            console.error("CODE " + r.status + ": " + r.statusText);
+                        }
+                        return;
+                    }
+                    window.location.href = "/";
                 })
             }
         }
