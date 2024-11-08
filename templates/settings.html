@@ -24,7 +24,7 @@
         <label for="username">Username</label><input type="text" id="username" value="{{ .User.Username }}"><br>
         <label for="password">Password</label><input type="password" id="password" value="{{ .User.Password }}"><br>
         <label for="email">E-Mail</label><input type="email" id="email" value="{{ .User.EMail }}"><br>
-        <label for="show_email">Show E-Mail</label><input type="checkbox" id="show_email"><br>
+        <label for="show_email">Show E-Mail</label><input type="checkbox" checked="{{ .User.ShowEMail }}" id="show_email"><br>
         <input type="button" id="save" value="Save" onclick="saveSettings()">
     </form>
 </main>
