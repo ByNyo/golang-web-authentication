@@ -168,47 +168,46 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		username := r.URL.Query().Get("username")
 		password := r.URL.Query().Get("password")
 		valid := ValidateUsername(username)
-		if valid {
-			now := time.Now()
-			user, err := GetUserByUsername(username)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			if password != user.Password {
-				fmt.Println(user.Password)
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
-				return
-			}
-			claims := Claims{
-				User:       *user,
-				Authorized: true,
-				StandardClaims: jwt.StandardClaims{
-					ExpiresAt: now.Add(24 * time.Hour).Unix(),
-					Id:        "",
-					IssuedAt:  now.Unix(),
-				},
-			}
-			tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-			tkn.Valid = true
-			tkn.Header["typ"] = "Bearer TOKEN"
-			tokenString, err := tkn.SignedString([]byte("secret"))
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			cookie := http.Cookie{
-				Name:     "GAUTH-JWT",
-				Path:     "/",
-				SameSite: http.SameSiteLaxMode,
-				Value:    tokenString,
-				Expires:  now.Add(24 * time.Hour),
-			}
-			http.SetCookie(w, &cookie)
-			http.Redirect(w, r, "/", http.StatusFound)
-		} else {
+		if !valid {
 			http.Error(w, "bad request", http.StatusBadRequest)
 		}
+		now := time.Now()
+		user, err := GetUserByUsername(username)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if password != user.Password {
+			fmt.Println(user.Password)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		claims := Claims{
+			User:       *user,
+			Authorized: true,
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: now.Add(24 * time.Hour).Unix(),
+				Id:        "",
+				IssuedAt:  now.Unix(),
+			},
+		}
+		tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tkn.Valid = true
+		tkn.Header["typ"] = "Bearer TOKEN"
+		tokenString, err := tkn.SignedString([]byte("secret"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		cookie := http.Cookie{
+			Name:     "GAUTH-JWT",
+			Path:     "/",
+			SameSite: http.SameSiteLaxMode,
+			Value:    tokenString,
+			Expires:  now.Add(24 * time.Hour),
+		}
+		http.SetCookie(w, &cookie)
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
 
@@ -279,6 +278,37 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		cookie, err := r.Cookie("GAUTH-JWT")
+		if err != nil {
+			return
+		}
+		claims := GetClaims(w, cookie.Value)
+		claims = &Claims{
+			User:       user,
+			Authorized: true,
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: claims.ExpiresAt,
+				Id:        "",
+				IssuedAt:  claims.IssuedAt,
+			},
+		}
+		tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tkn.Valid = true
+		tkn.Header["typ"] = "Bearer TOKEN"
+		tokenString, err := tkn.SignedString([]byte("secret"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		cookie = &http.Cookie{
+			Name:     "GAUTH-JWT",
+			Path:     "/",
+			SameSite: http.SameSiteLaxMode,
+			Value:    tokenString,
+			Expires:  time.Unix(claims.ExpiresAt, 0),
+		}
+		http.SetCookie(w, cookie)
+		http.Redirect(w, r, "/", http.StatusFound)
 		fmt.Println("Changed User:", newUser)
 	}
 }
