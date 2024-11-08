@@ -13,10 +13,10 @@
         <li id="home"><a href="/">Home</a></li>
     </ul>
 </nav>
-<form onsubmit="login(event)">
+<form>
     <label for="Username">Username</label><input type="text" name="User" id="Username"><br>
     <label for="Password">Password</label><input type="password" name="Password" id="Password"><br>
-    <input type="submit" value="Login">
+    <input type="button" onclick="login(event)" value="Login">
     <a href="/register">Don't have an account?</a>
 </form>
 <script src="/static/javascript/login.js"></script>
