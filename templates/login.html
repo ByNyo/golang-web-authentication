@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GAUTH | Login</title>
+</head>
+<body>
+<nav>
+    <ul>
+        <li id="home"><a href="/">Home</a></li>
+    </ul>
+</nav>
+<form onsubmit="login(event)">
+    <label for="Username">Username</label><input type="text" name="User" id="Username"><br>
+    <label for="Password">Password</label><input type="password" name="Password" id="Password"><br>
+    <input type="submit" value="Login">
+    <a href="/register">Don't have an account?</a>
+</form>
+<script src="/static/javascript/login.js"></script>
+</body>
+</html>
