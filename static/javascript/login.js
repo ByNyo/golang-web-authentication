@@ -10,9 +10,14 @@ function login(event) {
         console.error("Password is missing!");
         return
     }
-    let url = "/login?username=" + username + "&password=" + password
+    let user = {
+        "username": username,
+        "password": password,
+    }
+    let url = "/login"
     let options = {
-        method: "POST"
+        method: "POST",
+        body: JSON.stringify(user),
     }
     fetch(url, options).then(r => {
         if (!r.ok) {
