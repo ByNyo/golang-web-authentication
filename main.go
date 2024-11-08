@@ -178,7 +178,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if password != user.Password {
-			fmt.Println(user.Password)
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -284,7 +283,7 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		}
 		claims := GetClaims(w, cookie.Value)
 		claims = &Claims{
-			User:       user,
+			User:       *newUser,
 			Authorized: true,
 			StandardClaims: jwt.StandardClaims{
 				ExpiresAt: claims.ExpiresAt,
@@ -309,7 +308,6 @@ func Settings(w http.ResponseWriter, r *http.Request) {
 		}
 		http.SetCookie(w, cookie)
 		http.Redirect(w, r, "/", http.StatusFound)
-		fmt.Println("Changed User:", newUser)
 	}
 }
 
@@ -417,7 +415,6 @@ func AddUser(username, password, email string) (*User, error) {
 		ShowEMail: false,
 	}
 	db.Users[user.UUID] = &user
-	fmt.Println(db.Users)
 	return &user, nil
 }
 
